@@ -18,7 +18,6 @@ def IntComputer(data, inputs, position=0):
         return data
 
     relative_base = 0
-    input_counter = 0
     # print(inputs)
     while data[position] != 99:
         instruction = str(data[position])
@@ -41,11 +40,12 @@ def IntComputer(data, inputs, position=0):
             data[data[position + 3]] = first * second
             position += 4
         elif instruction[-1] == "3":
-            # print("3 is called")
-            if data[position + 1] >= len(data):
-                data += [0 for i in range(data[position + 1] - len(data) + 1)]
-            data[data[position + 1]] = inputs
-            input_counter += 1
+            print("3 is called")
+            print(data[position: position + 2])
+            data, first = mode(data, instruction[2], data[position + 1])
+            print(position, instruction, relative_base, first)
+            print(len(data))
+            data[first] = inputs
             position += 2
         elif instruction[-1] == "4":
             data, first = mode(data, instruction[2], data[position + 1])
@@ -69,6 +69,8 @@ def IntComputer(data, inputs, position=0):
         elif instruction[-1] == "7":
             data, first = mode(data, instruction[2], data[position + 1])
             data, second = mode(data, instruction[1], data[position + 2])
+            if data[position + 3] >= len(data):
+                data += [0 for i in range(data[position + 3] - len(data) + 1)]
             if first < second:
                 data[data[position + 3]] = 1
             else:
@@ -77,7 +79,8 @@ def IntComputer(data, inputs, position=0):
         elif instruction[-1] == "8":
             data, first = mode(data, instruction[2], data[position + 1])
             data, second = mode(data, instruction[1], data[position + 2])
-            
+            if data[position + 3] >= len(data):
+                data += [0 for i in range(data[position + 3] - len(data) + 1)]
             if first == second:
                 data[data[position + 3]] = 1
             else:
@@ -85,6 +88,7 @@ def IntComputer(data, inputs, position=0):
             position += 4
         elif instruction[-1] == "9":
             data, first = mode(data, instruction[2], data[position + 1])
+            # print(relative_base)
             relative_base += first
             position += 2
         else:
@@ -92,10 +96,11 @@ def IntComputer(data, inputs, position=0):
             break
 
 if __name__ == "__main__":
-    data = [109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99]
+    # data = [109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99]
     # data = [1102,34915192,34915192,7,4,7,99,0]
     # data = [104,1125899906842624,99]
-    # with open("input.txt") as f:
-    #     data = f.read().strip().split(",")
-    # data = [int(x) for x in data]
-    IntComputer(data, 0)
+    with open("input.txt") as f:
+        data = f.read().strip().split(",")
+    data = [int(x) for x in data]
+    print(len(data))
+    IntComputer(data, 1)
