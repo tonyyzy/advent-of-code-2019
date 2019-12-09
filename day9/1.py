@@ -1,21 +1,28 @@
 def IntComputer(data, inputs, position=0):
-    def mode(data, mode_code, num):
+    def mode(mode_code, pos):
+        """Decode different mode
+        
+        Arguments:
+            num {[type]} -- [description]
+        
+        Returns:
+            int -- position of the value
+        """
+        nonlocal data
         if mode_code == "0":
-            if num >= len(data):
-                data += [0 for i in range(num - len(data) + 1)]
-            return data, data[num]
+            return data[pos]
         elif mode_code == "1":
-            return data, num
+            return pos
         elif mode_code == "2":
-            if relative_base + num >= len(data):
-                data += [0 for i in range(relative_base + num - len(data) + 1)]
-            return data, data[relative_base + num]
+            return relative_base + data[pos]
     
-    def extend_data(data, position):
-        length = max(data[position + 1: position + 4])
-        if length >= len(data):
-            data += [0 for i in range(length - len(data))]
-        return data
+    def extend_data(positions):
+        nonlocal data
+        lim = max(positions)
+        if lim >= len(data):
+            # print(position, positions)
+            data += [0 for i in range(lim - len(data) + 1)]
+
 
     relative_base = 0
     # print(inputs)
@@ -26,81 +33,87 @@ def IntComputer(data, inputs, position=0):
         # data = extend_data(data, position)
         # print(instruction, position, data)
         if instruction[-1] == "1":
-            data, first = mode(data, instruction[2], data[position + 1])
-            data, second = mode(data, instruction[1], data[position + 2])
-            if data[position + 3] >= len(data):
-                data += [0 for i in range(data[position + 3] - len(data) + 1)]
-            data[data[position + 3]] = first + second
+            first = mode(instruction[2], position + 1)
+            second = mode(instruction[1], position + 2)
+            third = mode(instruction[0], position + 3)
+            extend_data([first, second, third])
+            data[third] = data[first] + data[second]
             position += 4
         elif instruction[-1] == "2":
-            data, first = mode(data, instruction[2], data[position + 1])
-            data, second = mode(data, instruction[1], data[position + 2])
-            if data[position + 3] >= len(data):
-                data += [0 for i in range(data[position + 3] - len(data) + 1)]
-            data[data[position + 3]] = first * second
+            first = mode(instruction[2], position + 1)
+            second = mode(instruction[1], position + 2)
+            third = mode(instruction[0], position + 3)
+            extend_data([first, second, third])
+            data[third] = data[first] * data[second]
             position += 4
         elif instruction[-1] == "3":
-            print("3 is called")
-            print(data[position: position + 2])
-            data, first = mode(data, instruction[2], data[position + 1])
-            print(position, instruction, relative_base, first)
-            print(len(data))
+            # print("3 is called")
+            # print(data[position: position + 2])
+            first = mode(instruction[2], position + 1)
+            # print(position, instruction, relative_base, first)
+            extend_data([first])
             data[first] = inputs
             position += 2
         elif instruction[-1] == "4":
-            data, first = mode(data, instruction[2], data[position + 1])
-            print(first)
+            first = mode(instruction[2], position + 1)
+            extend_data([first])
+            print(data[first])
             position += 2
             # return first, position, data 
         elif instruction[-1] == "5":
-            data, first = mode(data, instruction[2], data[position + 1])
-            data, second = mode(data, instruction[1], data[position + 2])
-            if first != 0:
-                position = second
+            first = mode(instruction[2], position + 1)
+            second = mode(instruction[1], position + 2)
+            extend_data([first, second])
+            if data[first] != 0:
+                position = data[second]
             else:
                 position += 3
         elif instruction[-1] == "6":
-            data, first = mode(data, instruction[2], data[position + 1])
-            data, second = mode(data, instruction[1], data[position + 2])
-            if first == 0:
-                position = second
+            first = mode(instruction[2], position + 1)
+            second = mode(instruction[1], position + 2)
+            extend_data([first, second])
+            if data[first] == 0:
+                position = data[second]
             else:
                 position += 3
         elif instruction[-1] == "7":
-            data, first = mode(data, instruction[2], data[position + 1])
-            data, second = mode(data, instruction[1], data[position + 2])
-            if data[position + 3] >= len(data):
-                data += [0 for i in range(data[position + 3] - len(data) + 1)]
-            if first < second:
-                data[data[position + 3]] = 1
+            first = mode(instruction[2], position + 1)
+            second = mode(instruction[1], position + 2)
+            third = mode(instruction[0], position + 3)
+            extend_data([first, second, third])
+            if data[first] < data[second]:
+                data[third] = 1
             else:
-                data[data[position + 3]] = 0
+                data[third] = 0
             position += 4
         elif instruction[-1] == "8":
-            data, first = mode(data, instruction[2], data[position + 1])
-            data, second = mode(data, instruction[1], data[position + 2])
-            if data[position + 3] >= len(data):
-                data += [0 for i in range(data[position + 3] - len(data) + 1)]
-            if first == second:
-                data[data[position + 3]] = 1
+            first = mode(instruction[2], position + 1)
+            second = mode(instruction[1], position + 2)
+            third = mode(instruction[0], position + 3)
+            extend_data([first, second, third])
+            if data[first] == data[second]:
+                data[third] = 1
             else:
-                data[data[position + 3]] = 0
+                data[third] = 0
             position += 4
         elif instruction[-1] == "9":
-            data, first = mode(data, instruction[2], data[position + 1])
-            # print(relative_base)
-            relative_base += first
+            first = mode(instruction[2], position + 1)
+            extend_data([first])
+            relative_base += data[first]
+            # print(position, instruction, relative_base, first)
             position += 2
         else:
             print(instruction, position)
             break
 
 if __name__ == "__main__":
-    # data = [109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99]
-    # data = [1102,34915192,34915192,7,4,7,99,0]
-    # data = [104,1125899906842624,99]
+    # data1 = [109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99]
+    # data2 = [1102,34915192,34915192,7,4,7,99,0]
+    # data3 = [104,1125899906842624,99]
+    # IntComputer(data1, 0)
+    # IntComputer(data2, 0)
+    # IntComputer(data3, 0)
     with open("input.txt") as f:
         data = f.read().strip().split(",")
     data = [int(x) for x in data]
-    print(len(data))
     IntComputer(data, 1)
