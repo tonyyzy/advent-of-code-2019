@@ -124,13 +124,13 @@ if __name__ == "__main__":
     while output != None:
         color[tuple(current_pos)] = output[0]
         if output[1] == 0:
-            direction -= 1
-            if direction == 0:
-                direction = 4
-        elif output[1] == 1:
             direction += 1
             if direction == 5:
                 direction = 1
+        elif output[1] == 1:
+            direction -= 1
+            if direction == 0:
+                direction = 4
         if direction == 1:
             current_pos[1] += 1
         elif direction == 2:
@@ -142,4 +142,4 @@ if __name__ == "__main__":
         if tuple(current_pos) not in color.keys():
             color[tuple(current_pos)] = 0
         data, position, output = IntComputer(data, color[tuple(current_pos)], position=position)
-    print(len(data))
+    print(len(color.keys()))
