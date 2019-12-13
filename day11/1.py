@@ -58,12 +58,12 @@ def IntComputer(data, inputs, position=0):
             first = mode(instruction[2], position + 1)
             extend_data([first])
             # print(data[first])
+            position += 2
             if len(output) == 1:
                 output.append(data[first])
                 return data, position, output
             elif len(output) == 0:
                 output.append(data[first])
-            position += 2
             # return first, position, data 
         elif instruction[-1] == "5":
             first = mode(instruction[2], position + 1)
